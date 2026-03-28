@@ -11,3 +11,5 @@ gem 'webrick', '~> 1.9'
 group :development, :test do
   gem 'pry'
 end
+
+gem "dotenv", "~> 3.2"
