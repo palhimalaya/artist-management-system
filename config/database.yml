@@ -1,0 +1,10 @@
+default:
+  user: postgres
+  password: postgres
+  host: localhost
+
+development:
+  dbname: artist_db
+  user: postgres
+  password: postgres
+  host: localhost

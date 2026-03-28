@@ -1,0 +1,39 @@
+# Bundler
+/vendor/bundle
+.bundle/
+
+# Logs
+*.log
+
+# Temp files
+tmp/
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Ruby
+*.gem
+
+# Environment variables
+.env
+
+# Database dumps (if any)
+*.sql
+*.dump
+
+# IDE / Editor
+.vscode/
+
+# Pry history
+.pry_history
+
+# Coverage
+coverage/
+
+# Node (if accidentally used)
+node_modules/
+
+# Build artifacts
+dist/

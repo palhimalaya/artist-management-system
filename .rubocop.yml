@@ -1,0 +1,19 @@
+AllCops:
+  NewCops: enable
+
+Metrics/MethodLength:
+  Max: 30
+  Exclude:
+    - 'server.rb'
+    - 'routes/*'
+    - 'db/migrate.rb'
+    - 'db/migrations/*'
+
+Metrics/BlockLength:
+  Max: 40
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
