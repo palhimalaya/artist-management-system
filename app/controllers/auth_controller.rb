@@ -5,7 +5,7 @@ class AuthController < ApplicationController
     errors = user.validate
     errors << 'Email already exists' if AuthService.find_by_email(user.email)
 
-    return render_error(res, errors.join(', ')) if errors.any?
+    return render_html(res, 'register', { error: errors.join(', ') }) if errors.any?
 
     user.password = HashUtil.hash_password(user.password)
     AuthService.create_user(user.to_h)
@@ -25,7 +25,7 @@ class AuthController < ApplicationController
       set_session(res, user.id)
       redirect(res, '/dashboard')
     else
-      render_error(res, 'Invalid credentials')
+      render_html(res, 'login', { error: 'Invalid credentials' })
     end
   end
 

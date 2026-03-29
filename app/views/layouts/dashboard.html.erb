@@ -12,8 +12,15 @@
     />
   </head>
   <body
-    class="relative min-h-screen bg-gray-50 font-sans text-gray-800 antialiased"
+    class="relative min-h-screen flex flex-col bg-gray-50 font-sans text-gray-800 antialiased"
   >
-    {{content}}
+    <%= nav_html %>
+    <div class="flex flex-1">
+      <%= sidebar_html %>
+      <main class="flex-1 lg:ml-64">
+        <%= content %>
+      </main>
+    </div>
+    <script src="/javascript/index.js"></script>
   </body>
 </html>
