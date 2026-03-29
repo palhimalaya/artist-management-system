@@ -6,10 +6,12 @@ gem 'jwt', '~> 3.1'
 
 gem 'pg', '~> 1.6'
 
+gem 'connection_pool'
+
 gem 'webrick', '~> 1.9'
 
 group :development, :test do
   gem 'pry'
 end
 
-gem "dotenv", "~> 3.2"
+gem 'dotenv', '~> 3.2'

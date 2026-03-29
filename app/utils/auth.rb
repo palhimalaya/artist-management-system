@@ -7,13 +7,13 @@ module AuthUtil
 
     return nil unless user_id
 
-    db = db_connection
+    db_connection do |db|
+      result = db.exec_params(
+        'SELECT * FROM users WHERE id = $1 LIMIT 1',
+        [user_id]
+      )
 
-    result = db.exec_params(
-      'SELECT * FROM users WHERE id = $1 LIMIT 1',
-      [user_id]
-    )
-
-    result.first
+      result.first
+    end
   end
 end

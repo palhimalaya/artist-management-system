@@ -1,7 +1,7 @@
 require 'dotenv/load'
 require_relative 'connection'
 
-db = db_connection
+db = db_checkout
 
 # Create tracking table
 db.exec <<-SQL

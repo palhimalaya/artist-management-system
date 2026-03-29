@@ -3,7 +3,7 @@ require_relative 'config/boot'
 require_relative 'routes/router'
 
 server = WEBrick::HTTPServer.new(Port: 3000)
-db_connection
+db_connection { |_| }
 router = Router.new
 public_dir = File.expand_path('public', __dir__)
 

@@ -5,6 +5,7 @@ def require_all(dir)
 end
 
 require 'dotenv/load'
+require 'pry'
 
 require_all('app/models')
 require_all('app/utils')
