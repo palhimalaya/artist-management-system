@@ -1,23 +1,39 @@
 module AuthHelper
   def require_auth(req, res)
-    user = AuthUtil.current_user(req)
+    raw_user = AuthUtil.current_user(req)
 
-    unless user
+    unless raw_user
       res.status = 302
       res['Location'] = '/login'
       return nil
     end
 
+    user = User.new(raw_user)
     req.instance_variable_set(:@current_user, user)
     user
   end
 
-  def protected(handler)
+  def authorize(req, res, allowed_roles)
+    user = require_auth(req, res)
+    return unless user
+
+    unless allowed_roles.include?(user.role)
+      res.status = 403
+      res.body = 'Forbidden'
+      return nil
+    end
+
+    user
+  end
+
+  def protected(controller_class, action, roles)
     lambda do |req, res|
-      user = require_auth(req, res)
+      controller = controller_class.new
+
+      user = controller.authorize(req, res, roles)
       next unless user
 
-      handler.call(req, res)
+      controller.send(action, req, res)
     end
   end
 

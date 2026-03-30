@@ -18,6 +18,24 @@ class User
     errors
   end
 
+  def as_json(_options = {})
+    {
+      id: id,
+      first_name: first_name,
+      email: email,
+      role: role
+    }
+  end
+
+  def to_h
+    {
+      'first_name' => first_name,
+      'email' => email,
+      'password' => password,
+      'role' => role
+    }
+  end
+
   private
 
   def blank?(value)

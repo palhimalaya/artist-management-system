@@ -3,39 +3,64 @@ class Router
   extend AuthHelper
 
   ROUTES = [
+    ['GET', '/', lambda { |req, res|
+      user = require_auth(req, res)
+
+      res.status = 302
+      res['Location'] = user ? '/dashboard' : '/login'
+    }],
     ['GET', '/login', view('login')],
     ['GET', '/register', view('register')],
     ['GET', '/logout', [AuthController, :logout]],
     ['POST', '/register', [AuthController, :register]],
-    ['POST', '/login', [AuthController, :login]]
+    ['POST', '/login', [AuthController, :login]],
 
+    ['GET', '/dashboard', [DashboardController, :index]],
+    ['GET', '/users', protected(UserController, :index, ['super_admin'])],
+    ['GET', '/users/new', protected(UserController, :new, ['super_admin'])],
+    ['POST', '/users', protected(UserController, :create, ['super_admin'])],
+    ['GET', '/users/:id/edit', protected(UserController, :edit, ['super_admin'])],
+    ['POST', '/users/:id', protected(UserController, :update, ['super_admin'])],
+    ['POST', '/users/:id/delete', protected(UserController, :delete, ['super_admin'])]
   ].freeze
 
   def call(req, res)
+    matched = nil
+
     ROUTES.each do |method, path, handler|
-      next unless req.request_method == method
+      next unless req.request_method.upcase == method
 
       params = match_route(path, req.path)
       next unless params
 
-      req.instance_variable_set(:@params, params)
-
-      return handler.call(req, res) if handler.is_a?(Proc)
-
-      controller_class, action = handler
-      controller = controller_class.new
-
-      return controller.send(action, req, res)
+      matched = [handler, params]
+      break
     end
 
-    not_found(res)
+    if matched
+      handler, params = matched
+      req.define_singleton_method(:params) { params }
+      dispatch(handler, req, res)
+    else
+      not_found(res)
+    end
   end
 
   private
 
+  def dispatch(handler, req, res)
+    if handler.is_a?(Proc)
+      handler.call(req, res)
+    else
+      controller_class, action = handler
+      controller = controller_class.new
+      controller.send(action, req, res)
+    end
+  end
+
   def match_route(route_path, req_path)
-    route_parts = route_path.split('/')
-    req_parts = req_path.split('/')
+    route_parts = route_path.split('/').reject(&:empty?)
+    req_parts = req_path.split('/').reject(&:empty?)
 
     return nil unless route_parts.length == req_parts.length
 
