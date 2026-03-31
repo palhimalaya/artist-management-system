@@ -21,7 +21,15 @@ class Router
     ['POST', '/users', protected(UserController, :create, ['super_admin'])],
     ['GET', '/users/:id/edit', protected(UserController, :edit, ['super_admin'])],
     ['POST', '/users/:id', protected(UserController, :update, ['super_admin'])],
-    ['POST', '/users/:id/delete', protected(UserController, :delete, ['super_admin'])]
+    ['POST', '/users/:id/delete', protected(UserController, :delete, ['super_admin'])],
+
+    # Artist routes
+    ['GET', '/artists', protected(ArtistController, :index, ['super_admin', 'artist_manager'])],
+    ['GET', '/artists/new', protected(ArtistController, :new, ['artist_manager'])],
+    ['POST', '/artists', protected(ArtistController, :create, ['artist_manager'])],
+    ['GET', '/artists/:id/edit', protected(ArtistController, :edit, ['artist_manager'])],
+    ['POST', '/artists/:id', protected(ArtistController, :update, ['artist_manager'])],
+    ['POST', '/artists/:id/delete', protected(ArtistController, :delete, ['artist_manager'])]
   ].freeze
 
   def call(req, res)

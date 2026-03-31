@@ -1,0 +1,113 @@
+<div class="px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Artists</h1>
+      <p class="text-gray-500 mt-1">Manage artist records (<%= total_count %> total)</p>
+    </div>
+    <% if can_manage %>
+    <a href="/artists/new" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Create Artist
+    </a>
+    <% end %>
+  </div>
+
+  <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">First Release Year</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Albums</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Linked User</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% if artists.empty? %>
+          <tr>
+            <td colspan="7" class="px-6 py-12 text-center text-gray-500">No artists found.</td>
+          </tr>
+          <% else %>
+            <% artists.each do |artist| %>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 text-sm text-gray-500"><%= artist.id %></td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-semibold text-xs">
+                    <%= artist.name.to_s[0..1].upcase %>
+                  </div>
+                  <span class="text-sm font-medium text-gray-900"><%= artist.name %></span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-600"><%= artist.gender || '-' %></td>
+              <td class="px-6 py-4 text-sm text-gray-600"><%= artist.first_release_year || '-' %></td>
+              <td class="px-6 py-4 text-sm text-gray-600"><%= artist.no_of_albums_released || 0 %></td>
+              <td class="px-6 py-4">
+                <% if artist.linked_user_name %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
+                  <%= artist.linked_user_name %>
+                </span>
+                <% else %>
+                <span class="text-sm text-gray-400">-</span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <a href="/artists/<%= artist.id %>/songs" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                    </svg>
+                    Songs
+                  </a>
+                  <% if can_manage %>
+                  <a href="/artists/<%= artist.id %>/edit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Edit
+                  </a>
+                  <form method="POST" action="/artists/<%= artist.id %>/delete" onsubmit="return confirm('Are you sure you want to delete this artist?')">
+                    <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                      Delete
+                    </button>
+                  </form>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+            <% end %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if total_pages > 1 %>
+    <div class="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-gray-50">
+      <p class="text-sm text-gray-600">
+        Page <%= current_page %> of <%= total_pages %>
+      </p>
+      <div class="flex items-center gap-2">
+        <% if current_page > 1 %>
+        <a href="/artists?page=<%= current_page - 1 %>" class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          Previous
+        </a>
+        <% end %>
+        <% if current_page < total_pages %>
+        <a href="/artists?page=<%= current_page + 1 %>" class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+          Next
+        </a>
+        <% end %>
+      </div>
+    </div>
+    <% end %>
+  </div>
+</div>
