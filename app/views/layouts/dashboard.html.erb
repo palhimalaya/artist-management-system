@@ -18,6 +18,23 @@
     <div class="flex flex-1">
       <%= sidebar_html %>
       <main class="flex-1 lg:ml-64">
+        <% if defined?(flash_message) && flash_message %>
+        <div id="flash-banner" class="mx-4 sm:mx-6 lg:mx-8 mt-6 transition-all duration-500 ease-out">
+          <% if flash_message[:type] == 'success' %>
+          <div class="flex items-center gap-3 px-4 py-3 rounded-lg border bg-emerald-50 border-emerald-200 text-emerald-700">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          <% else %>
+          <div class="flex items-center gap-3 px-4 py-3 rounded-lg border bg-red-50 border-red-200 text-red-700">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          <% end %>
+            <p class="text-sm font-medium"><%= flash_message[:message] %></p>
+          </div>
+        </div>
+        <% end %>
         <%= content %>
       </main>
     </div>

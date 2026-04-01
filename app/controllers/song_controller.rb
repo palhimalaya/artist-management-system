@@ -40,7 +40,7 @@ class SongController < ApplicationController
       current_page: page,
       total_pages: total_pages,
       total_count: total
-    }.merge(sidebar_locals(user)), layout: 'dashboard')
+    }.merge(sidebar_locals(user)), layout: 'dashboard', req: req)
   end
 
   def new(req, res)
@@ -61,7 +61,7 @@ class SongController < ApplicationController
       artist: artist,
       error: nil,
       form_data: {}
-    }.merge(sidebar_locals(user)), layout: 'dashboard')
+    }.merge(sidebar_locals(user)), layout: 'dashboard', req: req)
   end
 
   def create(req, res)
@@ -87,11 +87,12 @@ class SongController < ApplicationController
         artist: artist,
         error: errors.join(', '),
         form_data: data
-      }.merge(sidebar_locals(user)), layout: 'dashboard')
+      }.merge(sidebar_locals(user)), layout: 'dashboard', req: req)
       return
     end
 
     SongService.create(data.merge('artist_id' => artist_id, 'created_by' => user.id.to_s))
+    set_flash(res, 'success', 'Song created successfully')
     redirect(res, "/artists/#{artist_id}/songs")
   end
 
@@ -122,7 +123,7 @@ class SongController < ApplicationController
       artist: artist,
       song: song,
       error: nil
-    }.merge(sidebar_locals(user)), layout: 'dashboard')
+    }.merge(sidebar_locals(user)), layout: 'dashboard', req: req)
   end
 
   def update(req, res)
@@ -151,11 +152,12 @@ class SongController < ApplicationController
         artist: artist,
         song: song,
         error: errors.join(', ')
-      }.merge(sidebar_locals(user)), layout: 'dashboard')
+      }.merge(sidebar_locals(user)), layout: 'dashboard', req: req)
       return
     end
 
     SongService.update(song_id, data)
+    set_flash(res, 'success', 'Song updated successfully')
     redirect(res, "/artists/#{artist_id}/songs")
   end
 
@@ -172,6 +174,7 @@ class SongController < ApplicationController
     end
 
     SongService.delete(song_id)
+    set_flash(res, 'success', 'Song deleted successfully')
     redirect(res, "/artists/#{artist_id}/songs")
   end
 

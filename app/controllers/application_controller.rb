@@ -36,12 +36,39 @@ class ApplicationController
     res['Location'] = path
   end
 
+  def set_flash(res, type, message)
+    payload = "#{type}|#{message}"
+    encoded = URI.encode_www_form_component(payload)
+    res['Set-Cookie'] = "flash=#{encoded}; Path=/; Max-Age=5"
+  end
+
+  def get_flash(req)
+    cookies = CookieUtil.parse(req['Cookie'])
+    raw = cookies['flash']
+    return nil unless raw
+
+    decoded = URI.decode_www_form_component(raw)
+    type, message = decoded.split('|', 2)
+    { type: type, message: message }
+  rescue StandardError
+    nil
+  end
+
+  def clear_flash(res)
+    res['Set-Cookie'] = "flash=; Path=/; Max-Age=0"
+  end
+
   def render_error(res, msg)
     res.status = 400
     res.body = msg
   end
 
-  def render_html(res, template_name, locals = {}, layout: 'application')
+  def render_html(res, template_name, locals = {}, layout: 'application', req: nil)
+    if req
+      flash = get_flash(req)
+      clear_flash(res) if flash
+      locals[:flash_message] = flash
+    end
     render_view(res, "app/views/#{template_name}.html.erb", locals, layout:)
   end
 

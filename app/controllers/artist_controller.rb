@@ -23,7 +23,7 @@ class ArtistController < ApplicationController
                   current_page: page,
                   total_pages: total_pages,
                   total_count: total
-                }, layout: 'dashboard')
+                }, layout: 'dashboard', req: req)
   end
 
   def new(req, res)
@@ -35,7 +35,7 @@ class ArtistController < ApplicationController
                   active_page: 'artists',
                   error: nil,
                   form_data: {}
-                }, layout: 'dashboard')
+                }, layout: 'dashboard', req: req)
   end
 
   def create(req, res)
@@ -52,11 +52,12 @@ class ArtistController < ApplicationController
                     active_page: 'artists',
                     error: errors.join(', '),
                     form_data: data
-                  }, layout: 'dashboard')
+                  }, layout: 'dashboard', req: req)
       return
     end
 
     ArtistService.create(data.merge('created_by' => user.id.to_s))
+    set_flash(res, 'success', 'Artist created successfully')
     redirect(res, '/artists')
   end
 
@@ -84,7 +85,7 @@ class ArtistController < ApplicationController
                   linked_user: linked_user,
                   can_manage: true,
                   error: nil
-                }, layout: 'dashboard')
+                }, layout: 'dashboard', req: req)
   end
 
   def update(req, res)
@@ -109,7 +110,7 @@ class ArtistController < ApplicationController
                     linked_user: linked_user,
                     can_manage: true,
                     error: errors.join(', ')
-                  }, layout: 'dashboard')
+                  }, layout: 'dashboard', req: req)
       return
     end
 
@@ -123,12 +124,14 @@ class ArtistController < ApplicationController
       ArtistService.unlink_user(id)
     end
 
+    set_flash(res, 'success', 'Artist updated successfully')
     redirect(res, '/artists')
   end
 
   def delete(req, res)
     id = req.params['id']
     ArtistService.delete(id)
+    set_flash(res, 'success', 'Artist deleted successfully')
     redirect(res, '/artists')
   end
 end

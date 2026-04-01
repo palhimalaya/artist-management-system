@@ -25,7 +25,7 @@ class UserController < ApplicationController
                   current_page: page,
                   total_pages: total_pages,
                   total_count: total
-                }, layout: 'dashboard')
+                }, layout: 'dashboard', req: req)
   end
 
   def new(req, res)
@@ -37,7 +37,7 @@ class UserController < ApplicationController
                   active_page: 'users',
                   error: nil,
                   form_data: {}
-                }, layout: 'dashboard')
+                }, layout: 'dashboard', req: req)
   end
 
   def create(req, res)
@@ -57,13 +57,14 @@ class UserController < ApplicationController
                     active_page: 'users',
                     error: errors.join(', '),
                     form_data: data
-                  }, layout: 'dashboard')
+                  }, layout: 'dashboard', req: req)
       return
     end
 
     new_user.password = HashUtil.hash_password(new_user.password)
     UserService.create(data.merge('password' => new_user.password))
 
+    set_flash(res, 'success', 'User created successfully')
     redirect(res, '/users')
   end
 
@@ -85,7 +86,7 @@ class UserController < ApplicationController
                   active_page: 'users',
                   user: edit_user,
                   error: nil
-                }, layout: 'dashboard')
+                }, layout: 'dashboard', req: req)
   end
 
   def update(req, res)
@@ -105,17 +106,19 @@ class UserController < ApplicationController
                     active_page: 'users',
                     user: edit_user,
                     error: errors.join(', ')
-                  }, layout: 'dashboard')
+                  }, layout: 'dashboard', req: req)
       return
     end
 
     UserService.update(id, data)
+    set_flash(res, 'success', 'User updated successfully')
     redirect(res, '/users')
   end
 
   def delete(req, res)
     id = req.params['id']
     UserService.delete(id)
+    set_flash(res, 'success', 'User deleted successfully')
     redirect(res, '/users')
   end
 end
