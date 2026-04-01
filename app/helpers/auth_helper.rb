@@ -19,7 +19,7 @@ module AuthHelper
 
     unless allowed_roles.include?(user.role)
       res.status = 403
-      res.body = 'Forbidden'
+      render_view(res, 'app/views/authorized.html.erb')
       return nil
     end
 

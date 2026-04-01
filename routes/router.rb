@@ -24,12 +24,20 @@ class Router
     ['POST', '/users/:id/delete', protected(UserController, :delete, ['super_admin'])],
 
     # Artist routes
-    ['GET', '/artists', protected(ArtistController, :index, ['super_admin', 'artist_manager'])],
+    ['GET', '/artists', protected(ArtistController, :index, %w[super_admin artist_manager])],
     ['GET', '/artists/new', protected(ArtistController, :new, ['artist_manager'])],
     ['POST', '/artists', protected(ArtistController, :create, ['artist_manager'])],
     ['GET', '/artists/:id/edit', protected(ArtistController, :edit, ['artist_manager'])],
     ['POST', '/artists/:id', protected(ArtistController, :update, ['artist_manager'])],
-    ['POST', '/artists/:id/delete', protected(ArtistController, :delete, ['artist_manager'])]
+    ['POST', '/artists/:id/delete', protected(ArtistController, :delete, ['artist_manager'])],
+
+    # Song routes
+    ['GET', '/artists/:artist_id/songs', protected(SongController, :index, %w[super_admin artist_manager artist])],
+    ['GET', '/artists/:artist_id/songs/new', protected(SongController, :new, ['artist'])],
+    ['POST', '/artists/:artist_id/songs', protected(SongController, :create, ['artist'])],
+    ['GET', '/artists/:artist_id/songs/:id/edit', protected(SongController, :edit, ['artist'])],
+    ['POST', '/artists/:artist_id/songs/:id', protected(SongController, :update, ['artist'])],
+    ['POST', '/artists/:artist_id/songs/:id/delete', protected(SongController, :delete, ['artist'])]
   ].freeze
 
   def call(req, res)

@@ -1,0 +1,106 @@
+<div class="px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <% unless user_role == 'artist' %>
+      <a href="/artists" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors mb-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back to Artists
+      </a>
+      <% end %>
+      <h1 class="text-2xl font-bold text-gray-900">Songs by <%= artist.name %></h1>
+      <p class="text-gray-500 mt-1"><%= total_count %> song<%= total_count == 1 ? '' : 's' %></p>
+    </div>
+    <% if can_manage %>
+    <a href="/artists/<%= artist.id %>/songs/new" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Add Song
+    </a>
+    <% end %>
+  </div>
+
+  <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Album</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Genre</th>
+            <% if can_manage %>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% if songs.empty? %>
+          <tr>
+            <td colspan="<%= can_manage ? 5 : 4 %>" class="px-6 py-12 text-center text-gray-500">No songs found.</td>
+          </tr>
+          <% else %>
+            <% songs.each do |song| %>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 text-sm text-gray-500"><%= song.id %></td>
+              <td class="px-6 py-4 text-sm font-medium text-gray-900"><%= song.title %></td>
+              <td class="px-6 py-4 text-sm text-gray-600"><%= song.album_name || '-' %></td>
+              <td class="px-6 py-4">
+                <% if song.genre %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700">
+                  <%= song.genre %>
+                </span>
+                <% else %>
+                <span class="text-sm text-gray-400">-</span>
+                <% end %>
+              </td>
+              <% if can_manage %>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <a href="/artists/<%= artist.id %>/songs/<%= song.id %>/edit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Edit
+                  </a>
+                  <form method="POST" action="/artists/<%= artist.id %>/songs/<%= song.id %>/delete" onsubmit="return confirm('Are you sure you want to delete this song?')">
+                    <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+              <% end %>
+            </tr>
+            <% end %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if total_pages > 1 %>
+    <div class="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-gray-50">
+      <p class="text-sm text-gray-600">
+        Page <%= current_page %> of <%= total_pages %>
+      </p>
+      <div class="flex items-center gap-2">
+        <% if current_page > 1 %>
+        <a href="/artists/<%= artist.id %>/songs?page=<%= current_page - 1 %>" class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          Previous
+        </a>
+        <% end %>
+        <% if current_page < total_pages %>
+        <a href="/artists/<%= artist.id %>/songs?page=<%= current_page + 1 %>" class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+          Next
+        </a>
+        <% end %>
+      </div>
+    </div>
+    <% end %>
+  </div>
+</div>

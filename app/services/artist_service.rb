@@ -142,4 +142,17 @@ class ArtistService
       { 'id' => result.first['id'], 'first_name' => result.first['first_name'] }
     end
   end
+
+  def self.find_by_user_id(user_id)
+    db_connection do |db|
+      result = db.exec_params(
+        'SELECT id FROM artists WHERE user_id = $1 LIMIT 1',
+        [user_id]
+      )
+
+      return nil unless result.any?
+
+      result.first['id']
+    end
+  end
 end

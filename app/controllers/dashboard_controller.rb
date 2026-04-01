@@ -11,7 +11,8 @@ class DashboardController < ApplicationController
                   active_page: 'dashboard',
                   user_count: user_count,
                   artist_count: artist_count,
-                  song_count: song_count
+                  song_count: song_count,
+                  my_artist_id: user.role == 'artist' ? ArtistService.find_by_user_id(user.id) : nil
                 }, layout: 'dashboard')
   end
 
