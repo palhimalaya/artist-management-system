@@ -183,6 +183,7 @@ class ArtistService
 
   def self.import_csv(csv_text, created_by)
     created = 0
+    updated = 0
     errors = []
     row_num = 0
 
@@ -196,25 +197,45 @@ class ArtistService
         end
 
         begin
-          db.exec_params(
-            'INSERT INTO artists (name, dob, gender, address, first_release_year, no_of_albums_released, created_by) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-            [
-              name,
-              row['dob'],
-              row['gender'],
-              row['address'],
-              row['first_release_year'],
-              row['no_of_albums_released'],
-              created_by
-            ]
+          existing = db.exec_params(
+            'SELECT id FROM artists WHERE name = $1 LIMIT 1',
+            [name]
           )
-          created += 1
+
+          if existing.any?
+            db.exec_params(
+              'UPDATE artists SET dob = $1, gender = $2, address = $3, first_release_year = $4, no_of_albums_released = $5, updated_at = CURRENT_TIMESTAMP WHERE id = $6',
+              [
+                row['dob'],
+                row['gender'],
+                row['address'],
+                row['first_release_year'],
+                row['no_of_albums_released'],
+                existing.first['id']
+              ]
+            )
+            updated += 1
+          else
+            db.exec_params(
+              'INSERT INTO artists (name, dob, gender, address, first_release_year, no_of_albums_released, created_by) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+              [
+                name,
+                row['dob'],
+                row['gender'],
+                row['address'],
+                row['first_release_year'],
+                row['no_of_albums_released'],
+                created_by
+              ]
+            )
+            created += 1
+          end
         rescue PG::Error => e
           errors << "Row #{row_num}: #{e.message}"
         end
       end
     end
 
-    { created: created, errors: errors }
+    { created: created, updated: updated, errors: errors }
   end
 end

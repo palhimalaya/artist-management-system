@@ -158,9 +158,12 @@ class ArtistController < ApplicationController
     result = ArtistService.import_csv(csv_text, user.id)
 
     if result[:errors].any?
-      set_flash(res, 'error', "Imported #{result[:created]} artists. Errors: #{result[:errors].join('; ')}")
+      set_flash(res, 'error', "Created #{result[:created]}, updated #{result[:updated]}. Errors: #{result[:errors].join('; ')}")
     else
-      set_flash(res, 'success', "Successfully imported #{result[:created]} artists")
+      parts = []
+      parts << "#{result[:created]} created" if result[:created] > 0
+      parts << "#{result[:updated]} updated" if result[:updated] > 0
+      set_flash(res, 'success', "Import complete: #{parts.join(', ')}")
     end
     redirect(res, '/artists')
   end
