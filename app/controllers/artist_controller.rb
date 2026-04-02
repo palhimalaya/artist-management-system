@@ -135,7 +135,7 @@ class ArtistController < ApplicationController
     redirect(res, '/artists')
   end
 
-  def export_csv(req, res)
+  def export_csv(_req, res)
     csv_data = ArtistService.to_csv
     filename = "artists_#{Time.now.strftime('%Y%m%d_%H%M%S')}.csv"
 
@@ -158,11 +158,12 @@ class ArtistController < ApplicationController
     result = ArtistService.import_csv(csv_text, user.id)
 
     if result[:errors].any?
-      set_flash(res, 'error', "Created #{result[:created]}, updated #{result[:updated]}. Errors: #{result[:errors].join('; ')}")
+      set_flash(res, 'error',
+                "Created #{result[:created]}, updated #{result[:updated]}. Errors: #{result[:errors].join('; ')}")
     else
       parts = []
-      parts << "#{result[:created]} created" if result[:created] > 0
-      parts << "#{result[:updated]} updated" if result[:updated] > 0
+      parts << "#{result[:created]} created" if result[:created].positive?
+      parts << "#{result[:updated]} updated" if result[:updated].positive?
       set_flash(res, 'success', "Import complete: #{parts.join(', ')}")
     end
     redirect(res, '/artists')
