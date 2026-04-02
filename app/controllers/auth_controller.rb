@@ -21,8 +21,7 @@ class AuthController < ApplicationController
   def register(req, res)
     user = build_user(req)
 
-    errors = user.validate
-    errors << 'Email already exists' if AuthService.find_by_email(user.email)
+    errors = user.validate(email_taken: AuthService.find_by_email(user.email))
 
     return render_html(res, 'register', { error: errors.join(', ') }) if errors.any?
 

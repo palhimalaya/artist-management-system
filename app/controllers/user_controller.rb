@@ -43,12 +43,11 @@ class UserController < ApplicationController
   def create(req, res)
     user = current_user(req)
     data = parse_body(req)
+    normalized_email = data['email']&.strip&.downcase
+    data['email'] = normalized_email if normalized_email
 
     new_user = User.new(data)
-    errors = new_user.validate
-
-    existing = AuthService.find_by_email(data['email']&.strip&.downcase)
-    errors << 'Email already exists' if existing
+    errors = new_user.validate(email_taken: AuthService.find_by_email(normalized_email))
 
     if errors.any?
       render_html(res, 'users/new', {
@@ -97,10 +96,10 @@ class UserController < ApplicationController
     data['email'] = normalized_email if normalized_email
 
     edit_user = User.new(data)
-    errors = edit_user.validate
-    errors.delete('Password required')
     existing = AuthService.find_by_email(normalized_email)
-    errors << 'Email already exists' if existing && existing.id.to_s != id.to_s
+    email_taken = existing && existing.id.to_s != id.to_s
+    errors = edit_user.validate(email_taken: email_taken)
+    errors.delete('Password required')
 
     if errors.any?
       edit_user.id = id

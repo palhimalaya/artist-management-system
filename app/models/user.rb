@@ -11,10 +11,11 @@ class User
     @role       = attrs['role']
   end
 
-  def validate
+  def validate(email_taken: false)
     errors = []
     validate_presence(errors)
     validate_format(errors)
+    errors << 'Email already exists' if email_taken
     errors
   end
 
