@@ -3,19 +3,18 @@ class Router
   extend AuthHelper
 
   ROUTES = [
-    ['GET', '/', lambda { |req, res|
-      user = require_auth(req, res)
-
-      res.status = 302
-      res['Location'] = user ? '/dashboard' : '/login'
-    }],
-    ['GET', '/login', view('login')],
-    ['GET', '/register', view('register')],
+    # Authentication routes
+    ['GET', '/', [AuthController, :root]],
+    ['GET', '/login', [AuthController, :login_page]],
+    ['GET', '/register', [AuthController, :register_page]],
     ['GET', '/logout', [AuthController, :logout]],
     ['POST', '/register', [AuthController, :register]],
     ['POST', '/login', [AuthController, :login]],
 
+    # Dashboard routes
     ['GET', '/dashboard', [DashboardController, :index]],
+
+    # User management routes
     ['GET', '/users', protected(UserController, :index, ['super_admin'])],
     ['GET', '/users/new', protected(UserController, :new, ['super_admin'])],
     ['POST', '/users', protected(UserController, :create, ['super_admin'])],
@@ -23,7 +22,7 @@ class Router
     ['POST', '/users/:id', protected(UserController, :update, ['super_admin'])],
     ['POST', '/users/:id/delete', protected(UserController, :delete, ['super_admin'])],
 
-    # Artist routes (static paths before parameterized :id routes)
+    # Artist routes
     ['GET', '/artists', protected(ArtistController, :index, %w[super_admin artist_manager])],
     ['GET', '/artists/new', protected(ArtistController, :new, ['artist_manager'])],
     ['GET', '/artists/export.csv', protected(ArtistController, :export_csv, ['artist_manager'])],

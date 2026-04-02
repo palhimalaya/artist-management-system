@@ -93,10 +93,14 @@ class UserController < ApplicationController
     user = current_user(req)
     id = req.params['id']
     data = parse_body(req)
+    normalized_email = data['email']&.strip&.downcase
+    data['email'] = normalized_email if normalized_email
 
     edit_user = User.new(data)
     errors = edit_user.validate
     errors.delete('Password required')
+    existing = AuthService.find_by_email(normalized_email)
+    errors << 'Email already exists' if existing && existing.id.to_s != id.to_s
 
     if errors.any?
       edit_user.id = id
@@ -110,7 +114,20 @@ class UserController < ApplicationController
       return
     end
 
-    UserService.update(id, data)
+    begin
+      UserService.update(id, data)
+    rescue PG::UniqueViolation
+      edit_user.id = id
+      render_html(res, 'users/edit', {
+                    user_name: user.first_name,
+                    user_role: user.role,
+                    active_page: 'users',
+                    user: edit_user,
+                    error: 'Email already exists'
+                  }, layout: 'dashboard', req: req)
+      return
+    end
+
     set_flash(res, 'success', 'User updated successfully')
     redirect(res, '/users')
   end

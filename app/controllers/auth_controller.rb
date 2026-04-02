@@ -1,4 +1,23 @@
 class AuthController < ApplicationController
+  def root(req, res)
+    user = current_user(req)
+    redirect(res, user ? '/dashboard' : '/login')
+  end
+
+  def login_page(req, res)
+    user = current_user(req)
+    return redirect(res, '/dashboard') if user
+
+    render_html(res, 'login')
+  end
+
+  def register_page(req, res)
+    user = current_user(req)
+    return redirect(res, '/dashboard') if user
+
+    render_html(res, 'register')
+  end
+
   def register(req, res)
     user = build_user(req)
 
