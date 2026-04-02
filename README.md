@@ -2,6 +2,15 @@
 
 A web-based admin panel for managing artists, songs, and users built with Ruby, WEBrick, and PostgreSQL.
 
+## Highlights
+
+- Raw SQL based CRUD (no ORM)
+- Relational database with `users`, `artists`, and `songs` tables
+- Authentication with login/logout and session cookie
+- Role-based dashboard access
+- Pagination for list pages
+- CSV import/export for artists
+
 ## Prerequisites
 
 - Ruby 3.0+
@@ -20,7 +29,7 @@ A web-based admin panel for managing artists, songs, and users built with Ruby, 
 
 2. **Configure environment**
 
-   Copy `.env` and update with your PostgreSQL credentials:
+   Create a `.env` file in the project root and add:
 
    ```
    DB_NAME=artist_db
@@ -54,6 +63,25 @@ ruby server.rb
 ```
 
 Visit [http://localhost:3000](http://localhost:3000)
+
+## Role Access
+
+| Module | Action | Allowed Role(s) |
+|---|---|---|
+| Auth | Register | Public (creates `artist` role only) |
+| Auth | Login/Logout | All authenticated users |
+| Users | List/Create/Update/Delete | `super_admin` |
+| Artists | List | `super_admin`, `artist_manager` |
+| Artists | Create/Update/Delete | `artist_manager` |
+| Artists | CSV Import/Export | `artist_manager` |
+| Songs (per artist) | List | `super_admin`, `artist_manager`, linked `artist` |
+| Songs (per artist) | Create/Update/Delete | linked `artist` only |
+
+## Registration and Admin Policy
+
+- Public signup (`/register`) creates `artist` users only.
+- `super_admin` is bootstrapped using seed data.
+- Administrative user management is done from dashboard by `super_admin`.
 
 ## Default login credentials
 
