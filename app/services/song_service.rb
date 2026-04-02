@@ -25,7 +25,7 @@ class SongService
   def self.by_artist(artist_id, limit: 10, offset: 0)
     db_connection do |db|
       result = db.exec_params(
-        'SELECT * FROM songs WHERE artist_id = $1 ORDER BY id DESC LIMIT $2 OFFSET $3',
+        'SELECT * FROM songs WHERE artist_id = $1 ORDER BY id ASC LIMIT $2 OFFSET $3',
         [artist_id, limit, offset]
       )
 

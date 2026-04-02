@@ -1,4 +1,6 @@
 class ArtistService
+  require 'csv'
+
   def self.find(id)
     db_connection do |db|
       result = db.exec_params(
@@ -28,7 +30,7 @@ class ArtistService
         'SELECT a.*, u.first_name AS linked_user_name
          FROM artists a
          LEFT JOIN users u ON a.user_id = u.id
-         ORDER BY a.id DESC LIMIT $1 OFFSET $2',
+         ORDER BY a.id ASC LIMIT $1 OFFSET $2',
         [limit, offset]
       )
 
@@ -154,5 +156,65 @@ class ArtistService
 
       result.first['id']
     end
+  end
+
+  def self.to_csv
+    db_connection do |db|
+      result = db.exec_params(
+        'SELECT id, name, dob, gender, address, first_release_year, no_of_albums_released FROM artists ORDER BY id ASC'
+      )
+
+      CSV.generate do |csv|
+        csv << %w[id name dob gender address first_release_year no_of_albums_released]
+        result.each do |row|
+          csv << [
+            row['id'],
+            row['name'],
+            row['dob'],
+            row['gender'],
+            row['address'],
+            row['first_release_year'],
+            row['no_of_albums_released']
+          ]
+        end
+      end
+    end
+  end
+
+  def self.import_csv(csv_text, created_by)
+    created = 0
+    errors = []
+    row_num = 0
+
+    db_connection do |db|
+      CSV.parse(csv_text, headers: true) do |row|
+        row_num += 1
+        name = row['name']&.strip
+        if name.nil? || name.empty?
+          errors << "Row #{row_num}: Name is required"
+          next
+        end
+
+        begin
+          db.exec_params(
+            'INSERT INTO artists (name, dob, gender, address, first_release_year, no_of_albums_released, created_by) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+            [
+              name,
+              row['dob'],
+              row['gender'],
+              row['address'],
+              row['first_release_year'],
+              row['no_of_albums_released'],
+              created_by
+            ]
+          )
+          created += 1
+        rescue PG::Error => e
+          errors << "Row #{row_num}: #{e.message}"
+        end
+      end
+    end
+
+    { created: created, errors: errors }
   end
 end

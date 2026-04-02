@@ -23,9 +23,11 @@ class Router
     ['POST', '/users/:id', protected(UserController, :update, ['super_admin'])],
     ['POST', '/users/:id/delete', protected(UserController, :delete, ['super_admin'])],
 
-    # Artist routes
+    # Artist routes (static paths before parameterized :id routes)
     ['GET', '/artists', protected(ArtistController, :index, %w[super_admin artist_manager])],
     ['GET', '/artists/new', protected(ArtistController, :new, ['artist_manager'])],
+    ['GET', '/artists/export.csv', protected(ArtistController, :export_csv, ['artist_manager'])],
+    ['POST', '/artists/import.csv', protected(ArtistController, :import_csv, ['artist_manager'])],
     ['POST', '/artists', protected(ArtistController, :create, ['artist_manager'])],
     ['GET', '/artists/:id/edit', protected(ArtistController, :edit, ['artist_manager'])],
     ['POST', '/artists/:id', protected(ArtistController, :update, ['artist_manager'])],

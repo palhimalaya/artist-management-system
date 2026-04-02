@@ -134,4 +134,34 @@ class ArtistController < ApplicationController
     set_flash(res, 'success', 'Artist deleted successfully')
     redirect(res, '/artists')
   end
+
+  def export_csv(req, res)
+    csv_data = ArtistService.to_csv
+    filename = "artists_#{Time.now.strftime('%Y%m%d_%H%M%S')}.csv"
+
+    res['Content-Type'] = 'text/csv'
+    res['Content-Disposition'] = "attachment; filename=\"#{filename}\""
+    res.body = csv_data
+  end
+
+  def import_csv(req, res)
+    user = current_user(req)
+    data = parse_body(req)
+    csv_text = data['csv_text']
+
+    if csv_text.nil? || csv_text.strip.empty?
+      set_flash(res, 'error', 'CSV data is required')
+      redirect(res, '/artists')
+      return
+    end
+
+    result = ArtistService.import_csv(csv_text, user.id)
+
+    if result[:errors].any?
+      set_flash(res, 'error', "Imported #{result[:created]} artists. Errors: #{result[:errors].join('; ')}")
+    else
+      set_flash(res, 'success', "Successfully imported #{result[:created]} artists")
+    end
+    redirect(res, '/artists')
+  end
 end

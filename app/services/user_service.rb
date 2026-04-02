@@ -22,7 +22,7 @@ class UserService
   def self.all(limit: 10, offset: 0)
     db_connection do |db|
       result = db.exec_params(
-        'SELECT * FROM users ORDER BY id DESC LIMIT $1 OFFSET $2',
+        'SELECT * FROM users ORDER BY id ASC LIMIT $1 OFFSET $2',
         [limit, offset]
       )
 

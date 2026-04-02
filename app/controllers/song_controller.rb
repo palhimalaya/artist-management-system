@@ -14,7 +14,7 @@ class SongController < ApplicationController
 
     if (user.role == 'artist') && (artist.user_id&.to_s != user.id.to_s)
       res.status = 403
-      redirect(res, '/dashboard')
+      render_view(res, 'app/views/authorized.html.erb')
       return
     end
 

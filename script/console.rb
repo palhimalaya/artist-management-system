@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
+require_relative '../config/boot'
 require 'pry'
-require_relative '../db/connection'
 
 # initialize DB connection
 db = db_checkout
