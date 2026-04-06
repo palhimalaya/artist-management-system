@@ -3,8 +3,12 @@ module AuthHelper
     raw_user = AuthUtil.current_user(req)
 
     unless raw_user
-      res.status = 302
-      res['Location'] = '/login'
+      if json_request?(req)
+        json_response(res, { error: 'Unauthorized' }, status: 401)
+      else
+        res.status = 302
+        res['Location'] = '/login'
+      end
       return nil
     end
 
@@ -18,8 +22,12 @@ module AuthHelper
     return unless user
 
     unless allowed_roles.include?(user.role)
-      res.status = 403
-      render_view(res, 'app/views/authorized.html.erb')
+      if json_request?(req)
+        json_response(res, { error: 'Forbidden' }, status: 403)
+      else
+        res.status = 403
+        render_view(res, 'app/views/authorized.html.erb')
+      end
       return nil
     end
 

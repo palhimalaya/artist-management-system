@@ -1,16 +1,25 @@
 class AuthService
+  def self.blank_to_nil(value)
+    value.to_s.strip.empty? ? nil : value
+  end
+
   def self.create_user(params)
     query = <<-SQL
-      INSERT INTO users (first_name, email, password, role)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO users (first_name, last_name, email, password, phone, dob, gender, address, role)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     SQL
 
     db_connection do |db|
       result = db.exec_params(query, [
                                 params['first_name'],
+                                blank_to_nil(params['last_name']),
                                 params['email'],
                                 params['password'],
+                                blank_to_nil(params['phone']),
+                                blank_to_nil(params['dob']),
+                                blank_to_nil(params['gender']),
+                                blank_to_nil(params['address']),
                                 params['role']
                               ])
 

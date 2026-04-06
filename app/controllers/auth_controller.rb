@@ -21,7 +21,11 @@ class AuthController < ApplicationController
   def register(req, res)
     user = build_user(req)
 
-    errors = user.validate(email_taken: AuthService.find_by_email(user.email))
+    errors = user.validate(
+      email_taken: AuthService.find_by_email(user.email),
+      require_password_confirmation: true,
+      require_strong_password: true
+    )
 
     return render_html(res, 'register', { error: errors.join(', ') }) if errors.any?
 
@@ -40,10 +44,19 @@ class AuthController < ApplicationController
     user = AuthService.find_by_email(email)
 
     if valid_user?(user, password)
-      set_session(res, user.id)
-      redirect(res, '/dashboard')
+      if json_request?(req)
+        token = JwtUtil.generate(user)
+        json_response(res, { token: token, user: user.as_json })
+      else
+        set_session(res, user.id)
+        redirect(res, '/dashboard')
+      end
     else
-      render_html(res, 'login', { error: 'Invalid credentials' })
+      if json_request?(req)
+        json_response(res, { error: 'Invalid credentials' }, status: 401)
+      else
+        render_html(res, 'login', { error: 'Invalid credentials' })
+      end
     end
   end
 

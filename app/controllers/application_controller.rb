@@ -9,7 +9,16 @@ class ApplicationController
   def parse_body(req)
     return {} unless req.body
 
-    URI.decode_www_form(req.body).to_h
+    body = req.body.to_s
+    return {} if body.strip.empty?
+
+    if req['Content-Type'].to_s.downcase.include?('application/json')
+      JSON.parse(body)
+    else
+      URI.decode_www_form(body).to_h
+    end
+  rescue JSON::ParserError
+    {}
   end
 
   def set_session(res, user_id)
@@ -20,13 +29,9 @@ class ApplicationController
   def current_user(req)
     return req.instance_variable_get(:@current_user) if req.instance_variable_defined?(:@current_user)
 
-    cookies = CookieUtil.parse(req['Cookie'])
-    session = cookies['session']
-
-    user_id = CookieUtil.verify(session)
-    return nil unless user_id
-
-    user = UserService.find(user_id)
+    raw_user = AuthUtil.current_user(req)
+    return nil unless raw_user
+    user = User.new(raw_user)
 
     req.instance_variable_set(:@current_user, user)
   end
@@ -76,6 +81,12 @@ class ApplicationController
     res.status = status
     res['Content-Type'] = 'application/json'
     res.body = data.to_json
+  end
+
+  def json_request?(req)
+    content_type = req['Content-Type'].to_s.downcase
+    accept = req['Accept'].to_s.downcase
+    content_type.include?('application/json') || accept.include?('application/json')
   end
 
   def query_params(req)

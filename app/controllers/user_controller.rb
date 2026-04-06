@@ -47,7 +47,11 @@ class UserController < ApplicationController
     data['email'] = normalized_email if normalized_email
 
     new_user = User.new(data)
-    errors = new_user.validate(email_taken: AuthService.find_by_email(normalized_email))
+    errors = new_user.validate(
+      email_taken: AuthService.find_by_email(normalized_email),
+      require_password_confirmation: true,
+      require_strong_password: true
+    )
 
     if errors.any?
       render_html(res, 'users/new', {

@@ -1,4 +1,8 @@
 class UserService
+  def self.blank_to_nil(value)
+    value.to_s.strip.empty? ? nil : value
+  end
+
   def self.find(id)
     db_connection do |db|
       result = db.exec_params(
@@ -32,16 +36,21 @@ class UserService
 
   def self.create(params)
     query = <<-SQL
-      INSERT INTO users (first_name, email, password, role)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO users (first_name, last_name, email, password, phone, dob, gender, address, role)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     SQL
 
     db_connection do |db|
       result = db.exec_params(query, [
                                 params['first_name'],
+                                blank_to_nil(params['last_name']),
                                 params['email'],
                                 params['password'],
+                                blank_to_nil(params['phone']),
+                                blank_to_nil(params['dob']),
+                                blank_to_nil(params['gender']),
+                                blank_to_nil(params['address']),
                                 params['role']
                               ])
 
@@ -53,16 +62,26 @@ class UserService
     query = <<-SQL
       UPDATE users
       SET first_name = $1,
-          email = $2,
-          role = $3
-      WHERE id = $4
+          last_name = $2,
+          email = $3,
+          phone = $4,
+          dob = $5,
+          gender = $6,
+          address = $7,
+          role = $8
+      WHERE id = $9
       RETURNING *
     SQL
 
     db_connection do |db|
       result = db.exec_params(query, [
                                 params['first_name'],
+                                blank_to_nil(params['last_name']),
                                 params['email'],
+                                blank_to_nil(params['phone']),
+                                blank_to_nil(params['dob']),
+                                blank_to_nil(params['gender']),
+                                blank_to_nil(params['address']),
                                 params['role'],
                                 id
                               ])
